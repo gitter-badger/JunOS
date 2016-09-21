@@ -1,0 +1,46 @@
+#!/bin/sh
+#  
+#  This file is part of JunOS Operating System.
+#  
+#  Copyright (C) 2016, Liu Xiaofeng <lxf.junos@aliyun.com>
+#  Licensed under MIT, http://opensource.org/licenses/MIT. 
+#
+
+test -f tmp/hd.img && exit 0 
+
+echo "Create hd.img ... "
+dd if=/dev/zero of=$HOME/hd.img bs=1M count=64 2> /dev/null
+
+fdisk $HOME/hd.img > /dev/null 2> /dev/null << EOF
+o
+n
+p
+1
+
++16M
+n
+p
+2
+
++16M
+w
+EOF
+
+arr=$(sudo kpartx -av $HOME/hd.img | awk '{printf ("/dev/mapper/%s ",$3)}')
+
+n=0;
+for devn in $arr;
+do
+    n=`expr $n + 1`;
+#    echo "part"$n"======>"$devn
+    sudo mkfs.minix -1 $devn > /dev/null
+#    mkdir -p part$n
+#    sudo mount -t minix $devn part$n
+#    sudo cp /etc/mtab part$n/test.txt
+#    echo "umount part"
+#    sudo umount part$n
+#    sync
+done
+
+sudo kpartx -dv $HOME/hd.img 2>&1 > /dev/null
+mv   $HOME/hd.img tmp/hd.img

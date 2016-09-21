@@ -1,0 +1,25 @@
+/*  
+ *  ldscript    -- ld script for user command.
+ *
+ *  Copyright (C) 2016, Liu Xiaofeng <lxf.junos@aliyun.com>
+ *  Licensed under MIT, http://opensource.org/licenses/MIT.
+ */
+
+ENTRY(_start)
+
+SECTIONS
+{
+	. = 0x40100000+ SIZEOF_HEADERS ;
+	
+	.text : { *(.text) } 
+	. = ALIGN( 4096 ) ;
+	_etext = . ;
+	
+	.data : { *(.data) } 
+	. = ALIGN( 4096 ) ;
+	_edata = . ;
+	
+	.bss  : { *(.bss)  } 
+	. = ALIGN( 4096 ) ;
+	_end = . ;
+}
